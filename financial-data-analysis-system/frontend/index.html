@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Система аналізу фінансових даних</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <span class="logo-icon">📊</span>
+                    <h1>Фінансова панель</h1>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="auth-controls">
+                    <button class="btn btn-secondary auth-btn" id="register-btn" data-section="register">Реєстрація</button>
+                    <button class="btn btn-primary auth-btn" id="login-btn" data-section="login">Увійти</button>
+                    <div class="user-profile hidden" id="user-info-display">
+                        <span class="user-name" id="display-username"></span>
+                        <div class="user-avatar"></div>
+                        <button class="btn btn-secondary auth-btn" id="logout-btn">Вийти</button>
+                        <button class="btn btn-danger auth-btn" id="delete-account-btn">Видалити обліковий запис</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <aside class="sidebar">
+                <nav class="nav-menu">
+                    <a href="#dashboard" class="nav-item active" data-section="dashboard">
+                        <span class="nav-icon">📈</span>
+                        <span>Панель керування</span>
+                    </a>
+                    <a href="#add-record" class="nav-item protected-route-nav" data-section="add-record">
+                        <span class="nav-icon">➕</span>
+                        <span>Додати запис</span>
+                    </a>
+                    <a href="#analytics" class="nav-item protected-route-nav" data-section="analytics">
+                        <span class="nav-icon">📊</span>
+                        <span>Аналітика</span>
+                    </a>
+                </nav>
+            </aside>
+
+            <main class="main-content">
+                <section id="dashboard" class="section active">
+                    <div class="section-header">
+                        <h2>Огляд</h2>
+                        <div class="time-filter">
+                            <button class="filter-btn active" data-filter="monthly">Місячно</button>
+                            <button class="filter-btn" data-filter="yearly">Річно</button>
+                            <button class="filter-btn" data-filter="all">За весь час</button>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <h3>Загальний дохід</h3>
+                                <div class="metric-icon income">💰</div>
+                            </div>
+                            <div class="metric-value" id="revenue-value">$0.00</div>
+                            <div class="metric-footer">
+                                <span class="metric-label">Загальний дохід</span>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <h3>Загальні видатки</h3>
+                                <div class="metric-icon expense">💸</div>
+                            </div>
+                            <div class="metric-value" id="expenses-value">$0.00</div>
+                            <div class="metric-footer">
+                                <span class="metric-label">Загальні видатки</span>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <h3>Чистий прибуток</h3>
+                                <div class="metric-icon profit">📈</div>
+                            </div>
+                            <div class="metric-value" id="profit-value">$0.00</div>
+                            <div class="metric-footer">
+                                <span class="metric-label">Дохід - Видатки</span>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <h3>Маржа прибутку</h3>
+                                <div class="metric-icon margin">📊</div>
+                            </div>
+                            <div class="metric-value" id="margin-value">0%</div>
+                            <div class="metric-footer">
+                                <span class="metric-label">Коефіцієнт прибутковості</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="charts-row">
+                        <div class="chart-card">
+                            <div class="card-header">
+                                <h3>Дохід проти видатків</h3>
+                                <span class="card-action">⋮</span>
+                            </div>
+                            <div class="chart-container" id="income-expense-chart">
+                                <canvas id="income-expense-chart-canvas"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="chart-card">
+                            <div class="card-header">
+                                <h3>Фінансове резюме</h3>
+                                <span class="card-action">⋮</span>
+                            </div>
+                            <div class="summary-content">
+                                <div class="summary-item">
+                                    <span class="summary-label">Кількість записів</span>
+                                    <span class="summary-value" id="records-count">0</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Коефіцієнт видатків</span>
+                                    <span class="summary-value" id="expense-ratio">0%</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Стан</span>
+                                    <span class="summary-value status-good">Активний</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="add-record" class="section protected-route">
+                    <div class="section-header">
+                        <h2>Додати фінансовий запис</h2>
+                    </div>
+
+                    <div class="form-container">
+                        <form id="financial-record-form" class="financial-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="date">Дата</label>
+                                    <input type="date" id="date" name="date" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="type">Тип</label>
+                                    <select id="type" name="type" required>
+                                        <option value="">Виберіть тип</option>
+                                        <option value="income">Дохід</option>
+                                        <option value="expense">Видатки</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="category">Категорія</label>
+                                    <input type="text" id="category" name="category" placeholder="напр., Продажі, Оренда" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="amount">Сума</label>
+                                    <div class="amount-input-group">
+                                        <span class="currency">$</span>
+                                        <input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group full-width">
+                                    <label for="description">Опис</label>
+                                    <textarea id="description" name="description" placeholder="Введіть опис (необов'язково)" rows="4"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Додати запис</button>
+                                <button type="reset" class="btn btn-secondary">Очистити</button>
+                            </div>
+                        </form>
+                        <div id="form-message" class="form-message"></div>
+                    </div>
+                </section>
+
+                <section id="analytics" class="section protected-route">
+                    <div class="section-header">
+                        <h2>Останні транзакції</h2>
+                        <div class="section-controls">
+                            <input type="text" placeholder="Пошук записів..." class="search-input" id="search-input">
+                        </div>
+                    </div>
+
+                    <div class="records-container" id="records-container">
+                        <div class="loading">Завантаження транзакцій...</div>
+                    </div>
+                </section>
+
+                <section id="register" class="section">
+                    <div class="section-header">
+                        <h2>Реєстрація</h2>
+                    </div>
+                    <div class="form-container">
+                        <form id="register-form" class="financial-form">
+                            <div class="form-group">
+                                <label for="register-username">Ім'я користувача</label>
+                                <input type="text" id="register-username" name="username" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="register-password">Пароль</label>
+                                <input type="password" id="register-password" name="password" required>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Зареєструватися</button>
+                            </div>
+                        </form>
+                        <div id="register-message" class="form-message"></div>
+                    </div>
+                </section>
+
+                <section id="login" class="section">
+                    <div class="section-header">
+                        <h2>Увійти</h2>
+                    </div>
+                    <div class="form-container">
+                        <form id="login-form" class="financial-form">
+                            <div class="form-group">
+                                <label for="login-username">Ім'я користувача</label>
+                                <input type="text" id="login-username" name="username" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="login-password">Пароль</label>
+                                <input type="password" id="login-password" name="password" required>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Увійти</button>
+                            </div>
+                        </form>
+                        <div id="login-message" class="form-message"></div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <script src="scripts/main.js"></script>
+</body>
+</html>
